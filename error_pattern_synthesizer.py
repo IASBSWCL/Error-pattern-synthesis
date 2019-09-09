@@ -50,7 +50,7 @@ if __name__ == "__main__":
             errorPattern =''
             for j in range (0 , symbolSize):
                 symbolErrorChance = random.randrange(1,101,1)
-                if(symbolErrorChance > symbolErrorRate ):
+                if(symbolErrorChance < symbolErrorRate ):
                     error = ''
                     firstRandHex =  HEX_FIELD[random.randrange(0,16,1)] 
                     secondRandHex = HEX_FIELD[random.randrange(0,16,1)]
