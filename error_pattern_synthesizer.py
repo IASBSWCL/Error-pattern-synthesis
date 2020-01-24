@@ -13,7 +13,6 @@ if __name__ == "__main__":
     symbolSize = raw_input("Enter Symbol size in bytes:  ")
     symbolSize = int(symbolSize,10)
     print  'Up to this moment, we just support Hex representation (field is fixed to 8)'
-    
 
 
     packetErrorRate = raw_input("Packets error rate(%):  ")
