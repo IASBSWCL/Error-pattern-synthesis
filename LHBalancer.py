@@ -1,4 +1,5 @@
 import random 
+import os
 
 class symbolErrorProbability():
 
@@ -15,25 +16,57 @@ class symbolErrorProbability():
     def getTotalBroken(self):
         return self.totalBroken
     
-    def errorProbability(self):
+    def getErrorProbability(self):
         
         if (self.totalSymbol == 0 ):
             print "No Examination"
         else :
-            return self.totalBroken/self.totalSymbol
+            return (float(self.totalBroken)/float(self.totalSymbol)) * 100
      
 class Packet:
     brokenSymbolCount = 0
     def __init__(self,eachPacketSize,symbolErrorRate):
         self.packet = [0] * eachPacketSize
         for i in range (0,eachPacketSize):
-            if(random.randrange(1,101,1) < symbolErrorRate):
+
+            # ************* we should change error synthesis also because of this randrange
+            if(random.randrange(1,101,1) <= symbolErrorRate):
                 self.packet[i]=1
                 self.brokenSymbolCount +=1
 
     def getBrokenSymbolNumber(self):
         return self.brokenSymbolCount
 
+def makeOutput(limited , hinted , totallyBroken,  FullHealthy , errorProbabilityAfterLimited , computedErrorRate,generationSize,redundancySize,symbolErrorRate):
+    '''
+    Generation size (K) : G
+    Redundancy: R
+    Symbol Error: E
+    Folder Name : G-12-R-5
+    File Name:  E-3-G-12-R-5 / E-3-Folder Name
+    FIG Name: PACKET_ANALYSIS_G-12-R-5-E-3
+    FIG Name: FORMULA_ACCURACY-G-12-R-E-3
+    '''
+    
+    folderPath = "./Result/G-" + str(generationSize) + "-R-"+str(redundancySize)
+
+    
+    if not os.path.exists(folderPath):
+        os.makedirs(folderPath)
+
+
+    filePath = folderPath + "/E-"+ str(symbolErrorRate) + "-G-"+ str(generationSize) + "-R-"+ str(redundancySize)+".txt"
+    f = open(filePath,"w+")
+    f.write("Initial theoretical error:"+ str(symbolErrorRate) +'\n')
+    f.write("Computed Error:" + str(computedErrorRate) +'\n')
+
+    for i in range(0,redundancySize):
+        f.write("Threshold:"+str(i)+" , e'(T):"+str(errorProbabilityAfterLimited[i].getErrorProbability()))
+        # f.write ("LB: %d % , HB: %d , TB: %d , H: %d " % (limited[i],hinted[i],totallyBroken[i],FullHealthy))
+        f.write (' , LB: %(LB)f  , HB: %(HB)f  , TB: %(TB)f  , H: %(H)f \n' % {'LB': limited[i], 'HB': hinted[i], 'TB': totallyBroken[i], 'H': FullHealthy})
+        
+
+    return 
 
         
 def examination(NumberOfPackets,symbolErrorRate,eachPacketSize,generationSize): 
@@ -107,15 +140,15 @@ def examination(NumberOfPackets,symbolErrorRate,eachPacketSize,generationSize):
 
     # we should count symbols error  after and before 
 
-    computedErrorRate = float(totalNumberOfSymbolErrors)/float(totalNumberOfSymbols) 
+    computedErrorRate = (float(totalNumberOfSymbolErrors)/float(totalNumberOfSymbols))*100 
 
     #  convert Totally broken , limited , hinted, fullHealthy to percentage
     for i in range ( 0, maxThreshold):
-        limited[i] = float(limited[i]) /float(NumberOfPackets)
-        hinted[i] = float(hinted[i]) / float(NumberOfPackets)
-        totallyBroken[i] = float(totallyBroken[i])/ float(NumberOfPackets)
+        limited[i] = (float(limited[i]) /float(NumberOfPackets))*100
+        hinted[i] = (float(hinted[i]) / float(NumberOfPackets))*100
+        totallyBroken[i] = (float(totallyBroken[i])/ float(NumberOfPackets))*100
     
-    FullHealthy = float(FullHealthy) / float(NumberOfPackets)
+    FullHealthy = (float(FullHealthy) / float(NumberOfPackets))*100
 
     return  limited , hinted , totallyBroken,  FullHealthy , errorProbabilityAfterLimited , computedErrorRate
 
@@ -141,15 +174,17 @@ if __name__ == "__main__":
 
     print "Packet Size (K+R): " + str(eachPacketSize)
 
-    limitedThreshold = generationSize
+    limitedThreshold = redundancySize
     print "Max Fixing Threshold : " + str(limitedThreshold)
-
-    symbolErrorRate = int(raw_input("Symbol Error Rate: "))
 
     numberOfExams = int(raw_input("Examination Iteration: "))
 
     print "_______________________________________\n" 
-    for symbolErrorRate in range (10,30,4):
+    for symbolErrorRate in range (2,30,4):
         print str(symbolErrorRate) + "  Cycle finished ::::: "
-        examination(6,symbolErrorRate,31,26)
+        # SIMULATION OUTPUT
+        limited , hinted , totallyBroken,  FullHealthy , errorProbabilityAfterLimited , computedErrorRate = examination(numberOfExams,symbolErrorRate,eachPacketSize,generationSize)
+        # FORMULA OUTPUT 
 
+        # PRINTING FUNCTION
+        makeOutput(limited , hinted , totallyBroken,  FullHealthy , errorProbabilityAfterLimited , computedErrorRate,generationSize,redundancySize,symbolErrorRate)
