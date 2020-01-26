@@ -1,4 +1,4 @@
-# Run with python version 2 
+# Run with python version 2
 
 import random
 
@@ -29,7 +29,7 @@ if __name__ == "__main__":
     file= open(fileName,"w+")
     originalPacketList = []
     OriginalPacket = ''
-    # two hex representation can be seen as a byte 
+    # two hex representation can be seen as a byte
     for i in range (0,symbolSize):
         tempA = HEX_FIELD[random.randrange(0,16,1)]
         tempB = HEX_FIELD[random.randrange(0,16,1)]
@@ -37,7 +37,7 @@ if __name__ == "__main__":
         OriginalPacket += tempSymbol
         originalPacketList.append(tempSymbol)
 
-        
+
     print "The original Packet: ", OriginalPacket
 
     for i in range(0,symbols):
@@ -51,18 +51,12 @@ if __name__ == "__main__":
                 symbolErrorChance = random.randrange(1,101,1)
                 if(symbolErrorChance < symbolErrorRate ):
                     error = ''
-                    firstRandHex =  HEX_FIELD[random.randrange(0,16,1)] 
+                    firstRandHex =  HEX_FIELD[random.randrange(0,16,1)]
                     secondRandHex = HEX_FIELD[random.randrange(0,16,1)]
                     error = firstRandHex + secondRandHex
                     errorPattern +=error
                 else:
                     errorPattern +=originalPacketList[j]
             file.write(errorPattern+"\n")
-        else: 
+        else:
             file.write(OriginalPacket+"\n")
-
-         
-
-    
-
-
