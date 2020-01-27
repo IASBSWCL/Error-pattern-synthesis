@@ -1,8 +1,31 @@
 import random 
 import os
+import math
+import operator as op
+from functools import reduce
+
+
+def ncr(n, r):
+    r = min(r, n-r)
+    numer = reduce(op.mul, range(n, n-r, -1), 1)
+    denom = reduce(op.mul, range(1, r+1), 1)
+    return numer / denom
+
+def proposedFormula(generationSize,redundancySize,symbolErrorRate ,limitedThreshold):
+    k = generationSize
+    r = redundancySize
+    e = float(symbolErrorRate) / float(100)
+    print e
+    T = limitedThreshold
+    sum = 0 
+    for i in range (0, k - T + 1):
+        sum += ncr(k-T,i) * (e^i) * ((1-e)^(k-(T+i))) * float(T)/float(k)
+
+    return  sum
+
 
 class symbolErrorProbability():
-
+    
     totalBroken = 0
     totalSymbol = 0
     
@@ -28,7 +51,7 @@ class Packet:
     def __init__(self,eachPacketSize,symbolErrorRate):
         self.packet = [0] * eachPacketSize
         for i in range (0,eachPacketSize):
-
+    
             # ************* we should change error synthesis also because of this randrange
             if(random.randrange(1,101,1) <= symbolErrorRate):
                 self.packet[i]=1
@@ -59,16 +82,18 @@ def makeOutput(limited , hinted , totallyBroken,  FullHealthy , errorProbability
     f = open(filePath,"w+")
     f.write("Initial theoretical error:"+ str(symbolErrorRate) +'\n')
     f.write("Computed Error:" + str(computedErrorRate) +'\n')
-
+    
     for i in range(0,redundancySize):
-        f.write("Threshold:"+str(i)+" , e'(T):"+str(errorProbabilityAfterLimited[i].getErrorProbability()))
-        # f.write ("LB: %d % , HB: %d , TB: %d , H: %d " % (limited[i],hinted[i],totallyBroken[i],FullHealthy))
+        formulaE = proposedFormula(generationSize,redundancySize,symbolErrorRate,i)
+        f.write("Threshold:"+str(i)+" , e'(T):"+str(errorProbabilityAfterLimited[i].getErrorProbability())+ " , Fe(t): "+ str(formulaE) )
         f.write (' , LB: %(LB)f  , HB: %(HB)f  , TB: %(TB)f  , H: %(H)f \n' % {'LB': limited[i], 'HB': hinted[i], 'TB': totallyBroken[i], 'H': FullHealthy})
         
 
     return 
 
-        
+
+
+
 def examination(NumberOfPackets,symbolErrorRate,eachPacketSize,generationSize): 
     # here we need to control all examinations
     # expected Number of packet needed can be replace with Number of packets
@@ -154,9 +179,7 @@ def examination(NumberOfPackets,symbolErrorRate,eachPacketSize,generationSize):
 
 #  def GeneralExamination(NumberOfPackets,symbolErrorRate,eachPacketSize,generationSize ,numberOfExams):
 
-
     #  general examination here
-
     # limited,hinted,FullHealthy = examination(NumberOfPackets,symbolErrorRate,eachPacketSize,generationSize)
 
 
