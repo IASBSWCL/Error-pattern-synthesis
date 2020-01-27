@@ -12,16 +12,20 @@ def ncr(n, r):
     return numer / denom
 
 def proposedFormula(generationSize,redundancySize,symbolErrorRate ,limitedThreshold):
-    k = generationSize
+    # I've changed k = generationSize to k= generationSize + redundancySize because in ACR we don't have any redundancy 
+    # if we want to compute it in this process we have to consider that
+    k = generationSize + redundancySize
     r = redundancySize
+
+    # convert percent (0 - 100) to rate (0.0 - 1.0) 
     e = float(symbolErrorRate) / float(100)
-    print e
+
     T = limitedThreshold
     sum = 0 
     for i in range (0, k - T + 1):
-        sum += ncr(k-T,i) * (e^i) * ((1-e)^(k-(T+i))) * float(T)/float(k)
+        sum += ncr(k-T,i) * (e**i) * ((1-e)**(k-(T+i))) * float(T+i)/float(k)
 
-    return  sum
+    return  sum * 100
 
 
 class symbolErrorProbability():
