@@ -22,11 +22,35 @@ def proposedFormula(generationSize,redundancySize,symbolErrorRate ,limitedThresh
 
     T = limitedThreshold
     sum = 0 
-    for i in range (0, k - T + 1):
+    for i in range (1, k - T + 1):
         sum += ncr(k-T,i) * (e**i) * ((1-e)**(k-(T+i))) * float(T+i)/float(k)
 
     return  sum * 100
 
+def proposedFormulaEdited(generationSize,redundancySize,symbolErrorRate ,limitedThreshold):
+    # I've changed k = generationSize to k= generationSize + redundancySize because in ACR we don't have any redundancy 
+    # if we want to compute it in this process we have to consider that
+    k = generationSize + redundancySize
+    r = redundancySize
+
+    # convert percent (0 - 100) to rate (0.0 - 1.0) 
+    e = float(symbolErrorRate) / float(100)
+
+    T = limitedThreshold
+    sum = 0 
+
+
+    # for i in range (0, k - T+1):
+    #     sum +=  (e**i) * ((1-e)**(k-(T+i))) * i * ncr(k-T,i)
+
+    for i in range (0, k+1):
+        sum +=  (e**i) * ((1-e)**(k-i)) * i * ncr(k,i)
+
+
+    return  ((sum)/ float(k)) * 100
+    # return sum
+    # return  ((float(T) + float(sum))/ float(k)) * 100
+    # return  (T*(float(T)/float(k))+(k-T)* e) * 100
 
 class symbolErrorProbability():
     
@@ -88,7 +112,7 @@ def makeOutput(limited , hinted , totallyBroken,  FullHealthy , errorProbability
     f.write("Computed Error:" + str(computedErrorRate) +'\n')
     
     for i in range(0,redundancySize):
-        formulaE = proposedFormula(generationSize,redundancySize,symbolErrorRate,i)
+        formulaE = proposedFormulaEdited(generationSize,redundancySize,symbolErrorRate,i)
         f.write("Threshold:"+str(i)+" , e'(T):"+str(errorProbabilityAfterLimited[i].getErrorProbability())+ " , Fe(t): "+ str(formulaE) )
         f.write (' , LB: %(LB)f  , HB: %(HB)f  , TB: %(TB)f  , H: %(H)f \n' % {'LB': limited[i], 'HB': hinted[i], 'TB': totallyBroken[i], 'H': FullHealthy})
         
@@ -118,6 +142,7 @@ def examination(NumberOfPackets,symbolErrorRate,eachPacketSize,generationSize):
     iterationNumber = NumberOfPackets
 
     # threshold can be equal to R at most , + 1 because it is starting from zero
+    #  convert 1 to 2 ******
     maxThreshold = (eachPacketSize - generationSize) + 1
 
 
