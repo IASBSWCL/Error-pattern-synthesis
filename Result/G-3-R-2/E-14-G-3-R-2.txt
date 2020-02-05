@@ -1,0 +1,5 @@
+Initial theoretical error:14
+Computed Error:50.0
+Threshold:0 , e'(T):60.0 , Fe(t): 14.0 , LB: 16.666667  , HB: 33.333333  , TB: 50.000000  , H: 16.666667 
+Threshold:1 , e'(T):70.0 , Fe(t): 14.0 , LB: 33.333333  , HB: 16.666667  , TB: 50.000000  , H: 16.666667 
+Threshold:2 , e'(T):80.0 , Fe(t): 14.0 , LB: 50.000000  , HB: 0.000000  , TB: 50.000000  , H: 16.666667 

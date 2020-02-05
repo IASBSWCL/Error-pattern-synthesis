@@ -11,6 +11,8 @@ def ncr(n, r):
     denom = reduce(op.mul, range(1, r+1), 1)
     return numer / denom
 
+
+# Formula -- Doctor Pahlevani version
 def proposedFormula(generationSize,redundancySize,symbolErrorRate ,limitedThreshold):
     # I've changed k = generationSize to k= generationSize + redundancySize because in ACR we don't have any redundancy 
     # if we want to compute it in this process we have to consider that
@@ -27,6 +29,8 @@ def proposedFormula(generationSize,redundancySize,symbolErrorRate ,limitedThresh
 
     return  sum * 100
 
+
+# Formula -- Nazari version
 def proposedFormulaEdited(generationSize,redundancySize,symbolErrorRate ,limitedThreshold):
     # I've changed k = generationSize to k= generationSize + redundancySize because in ACR we don't have any redundancy 
     # if we want to compute it in this process we have to consider that
@@ -40,16 +44,16 @@ def proposedFormulaEdited(generationSize,redundancySize,symbolErrorRate ,limited
     sum = 0 
 
 
-    # for i in range (0, k - T+1):
-    #     sum +=  (e**i) * ((1-e)**(k-(T+i))) * i * ncr(k-T,i)
+    for i in range (0, k - T+1):
+        sum +=  (e**i) * ((1-e)**(k-(T+i))) * i * ncr(k-T,i)
 
-    for i in range (0, k+1):
-        sum +=  (e**i) * ((1-e)**(k-i)) * i * ncr(k,i)
+    # for i in range (0, k+1):
+    #     sum +=  (e**i) * ((1-e)**(k-i)) * i * ncr(k,i)
 
 
-    return  ((sum)/ float(k)) * 100
+    # return  ((sum)/ float(k)) * 100
     # return sum
-    # return  ((float(T) + float(sum))/ float(k)) * 100
+    return  ((float(T) + float(sum))/ float(k)) * 100
     # return  (T*(float(T)/float(k))+(k-T)* e) * 100
 
 class symbolErrorProbability():
@@ -88,6 +92,19 @@ class Packet:
     def getBrokenSymbolNumber(self):
         return self.brokenSymbolCount
 
+class deterministicPacket:
+    brokenSymbolCount = 0
+    def __init__(self,eachPacketSize,numberOfError):
+        self.packet = [0] * eachPacketSize
+        for i in range (0,eachPacketSize):
+            if(i<numberOfError):
+                self.packet[i]=1
+                self.brokenSymbolCount +=1
+
+    def getBrokenSymbolNumber(self):
+        return self.brokenSymbolCount
+
+
 def makeOutput(limited , hinted , totallyBroken,  FullHealthy , errorProbabilityAfterLimited , computedErrorRate,generationSize,redundancySize,symbolErrorRate):
     '''
     Generation size (K) : G
@@ -111,7 +128,7 @@ def makeOutput(limited , hinted , totallyBroken,  FullHealthy , errorProbability
     f.write("Initial theoretical error:"+ str(symbolErrorRate) +'\n')
     f.write("Computed Error:" + str(computedErrorRate) +'\n')
     
-    for i in range(0,redundancySize):
+    for i in range(0,redundancySize+1):
         formulaE = proposedFormulaEdited(generationSize,redundancySize,symbolErrorRate,i)
         f.write("Threshold:"+str(i)+" , e'(T):"+str(errorProbabilityAfterLimited[i].getErrorProbability())+ " , Fe(t): "+ str(formulaE) )
         f.write (' , LB: %(LB)f  , HB: %(HB)f  , TB: %(TB)f  , H: %(H)f \n' % {'LB': limited[i], 'HB': hinted[i], 'TB': totallyBroken[i], 'H': FullHealthy})
@@ -167,6 +184,7 @@ def examination(NumberOfPackets,symbolErrorRate,eachPacketSize,generationSize):
     for i in range (0,NumberOfPackets):
 
         tempPacket = Packet(eachPacketSize,symbolErrorRate)
+        # tempPacket = deterministicPacket(eachPacketSize,i)
 
         #  here we should conut lots of thing
         numberOfError = tempPacket.getBrokenSymbolNumber()
